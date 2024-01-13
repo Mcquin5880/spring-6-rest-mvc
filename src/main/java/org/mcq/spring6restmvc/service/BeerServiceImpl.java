@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mcq.spring6restmvc.model.Beer;
 import org.mcq.spring6restmvc.model.BeerStyle;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -86,4 +87,48 @@ public class BeerServiceImpl implements BeerService {
         beerMap.put(savedBeer.getId(), savedBeer);
         return savedBeer;
     }
+
+    @Override
+    public void updateBeerById(UUID id, Beer beer) {
+        Beer existing = beerMap.get(id);
+        existing.setName(beer.getName());
+        existing.setBeerStyle(beer.getBeerStyle());
+        existing.setUpc(beer.getUpc());
+        existing.setQuantityOnHand(beer.getQuantityOnHand());
+        existing.setPrice(beer.getPrice());
+        existing.setUpdatedDate(LocalDateTime.now());
+    }
+
+    @Override
+    public void deleteBeerById(UUID id) {
+        beerMap.remove(id);
+    }
+
+    @Override
+    public void patchBeerById(UUID id, Beer beer) {
+        Beer existing = beerMap.get(id);
+
+        if (StringUtils.hasText(beer.getName())) {
+            existing.setName(beer.getName());
+        }
+
+        if (beer.getBeerStyle() != null) {
+            existing.setBeerStyle(beer.getBeerStyle());
+        }
+
+        if (beer.getPrice() != null) {
+            existing.setPrice(beer.getPrice());
+        }
+
+        if (beer.getQuantityOnHand() != null) {
+            existing.setQuantityOnHand(beer.getQuantityOnHand());
+        }
+
+        if (StringUtils.hasText(beer.getUpc())) {
+            existing.setUpc(beer.getUpc());
+        }
+
+        existing.setUpdatedDate(LocalDateTime.now());
+    }
+
 }
