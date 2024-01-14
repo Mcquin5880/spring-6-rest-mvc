@@ -1,7 +1,7 @@
 package org.mcq.spring6restmvc.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.mcq.spring6restmvc.model.Beer;
+import org.mcq.spring6restmvc.model.BeerDTO;
 import org.mcq.spring6restmvc.service.BeerService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,25 +21,25 @@ public class BeerController {
     private final BeerService beerService;
 
     @GetMapping(BEER_PATH)
-    public List<Beer> listBeers() {
+    public List<BeerDTO> listBeers() {
         return beerService.listBeers();
     }
 
     @GetMapping(BEER_PATH_ID)
-    public Beer getBeerById(@PathVariable UUID id) {
+    public BeerDTO getBeerById(@PathVariable UUID id) {
         return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity createBeer(@RequestBody Beer beer) {
-        Beer savedBeer = beerService.saveNewBeer(beer);
+    public ResponseEntity createBeer(@RequestBody BeerDTO beer) {
+        BeerDTO savedBeer = beerService.saveNewBeer(beer);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", BEER_PATH + savedBeer.getId().toString());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @PutMapping(BEER_PATH_ID)
-    public ResponseEntity updateById(@PathVariable UUID id, @RequestBody Beer beer) {
+    public ResponseEntity updateById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
         beerService.updateBeerById(id, beer);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -51,7 +51,7 @@ public class BeerController {
     }
 
     @PatchMapping(BEER_PATH_ID)
-    public ResponseEntity updateBeerPatchById(@PathVariable UUID id, @RequestBody Beer beer) {
+    public ResponseEntity updateBeerPatchById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
         beerService.patchBeerById(id, beer);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
