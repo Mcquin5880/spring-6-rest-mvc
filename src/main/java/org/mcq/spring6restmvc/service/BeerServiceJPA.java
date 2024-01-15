@@ -6,10 +6,13 @@ import org.mcq.spring6restmvc.model.BeerDTO;
 import org.mcq.spring6restmvc.repository.BeerRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,21 +39,62 @@ public class BeerServiceJPA implements BeerService {
 
     @Override
     public BeerDTO saveNewBeer(BeerDTO beer) {
-        return null;
+        return beerMapper.beerToBeerDto(beerRepository.save(beerMapper.beerDtoToBeer(beer)));
     }
 
     @Override
-    public void updateBeerById(UUID id, BeerDTO beer) {
+    public Optional<BeerDTO> updateBeerById(UUID id, BeerDTO beer) {
 
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
+
+        beerRepository.findById(id).ifPresentOrElse(foundBeer -> {
+            foundBeer.setName(beer.getName());
+            foundBeer.setBeerStyle(beer.getBeerStyle());
+            foundBeer.setUpc(beer.getUpc());
+            foundBeer.setPrice(beer.getPrice());
+            foundBeer.setUpdatedDate(LocalDateTime.now());
+
+            atomicReference.set(Optional.of(beerMapper.beerToBeerDto(beerRepository.save(foundBeer))));
+        }, () -> atomicReference.set(Optional.empty()));
+
+        return atomicReference.get();
     }
 
     @Override
-    public void deleteBeerById(UUID id) {
-
+    public Boolean deleteBeerById(UUID id) {
+        if (beerRepository.existsById(id)) {
+            beerRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void patchBeerById(UUID id, BeerDTO beer) {
+    public Optional<BeerDTO> patchBeerById(UUID id, BeerDTO beer) {
 
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
+
+        beerRepository.findById(id).ifPresentOrElse(foundBeer -> {
+            if (StringUtils.hasText(beer.getName())) {
+                foundBeer.setName(beer.getName());
+            }
+            if (beer.getBeerStyle() != null) {
+                foundBeer.setBeerStyle(beer.getBeerStyle());
+            }
+            if (StringUtils.hasText(beer.getUpc())) {
+                foundBeer.setUpc(beer.getUpc());
+            }
+            if (beer.getQuantityOnHand() != null) {
+                foundBeer.setQuantityOnHand(beer.getQuantityOnHand());
+            }
+            if (beer.getPrice() != null) {
+                foundBeer.setPrice(beer.getPrice());
+            }
+            foundBeer.setUpdatedDate(LocalDateTime.now());
+
+            atomicReference.set(Optional.of(beerMapper.beerToBeerDto(beerRepository.save(foundBeer))));
+        }, () -> atomicReference.set(Optional.empty()));
+
+        return atomicReference.get();
     }
 }
