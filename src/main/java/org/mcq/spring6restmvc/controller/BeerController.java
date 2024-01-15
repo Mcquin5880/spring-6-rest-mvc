@@ -6,6 +6,7 @@ import org.mcq.spring6restmvc.service.BeerService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class BeerController {
     }
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity createBeer(@RequestBody BeerDTO beer) {
+    public ResponseEntity createBeer(@Validated @RequestBody BeerDTO beer) {
         BeerDTO savedBeer = beerService.saveNewBeer(beer);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", BEER_PATH + savedBeer.getId().toString());
@@ -39,7 +40,7 @@ public class BeerController {
     }
 
     @PutMapping(BEER_PATH_ID)
-    public ResponseEntity updateById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
+    public ResponseEntity updateById(@PathVariable UUID id, @Validated @RequestBody BeerDTO beer) {
         if (beerService.updateBeerById(id, beer).isEmpty()) {
             throw new NotFoundException();
         }
